@@ -15,6 +15,7 @@
             <button type="reset" form="Meu nome">limpar</button>
         </fieldset>
     </form>
+    <br>
     <button type="submit"> Enviar</button>
 
     <input type="text" list="fruitsalad" placeholder="Escolha uma fruta"/>
@@ -25,7 +26,49 @@
         <option>mango</option>
         <option>cherry</option>
     </datalist>
-    
-    
+
+    <br>
+    <label for="subriscribe">Receber notificações</label>
+    <input type="checkbox" name="subriscribe" id="subriscribe" >
+
+    <fieldset>
+        <legend>Faça sua Escolha</legend>
+        <div>
+            <input type="checkbox" id="coding" name="interest" value="Coding" checked >
+            <label for="coding">Coding</label>
+        </div>
+        <div>
+            <input type="checkbox" name="music" id="interest" value="Music">
+            <label for="Music">Music</label>
+        </div>
+        
+    </fieldset>
+    <br>
+    <input type="hidden" name="id" value="8">
+    <fieldset>
+        <legend>Bora Tomar um Café</legend>
+
+        <label for="yep">Sim</label>
+        <input type="radio" id="yep" name="coffee" value="yes">
+
+        <label for="nono">Não</label>
+        <input checked type="radio" name="coffee" id="nono" value="no" >
+
+    </fieldset>
+    <br>
+    <label for="Message">Messagem</label>
+     <textarea name="Message" id="message" cols="30" rows="10" placeholder="Deixe seu recado"></textarea>
+     <br>
+     <br>
+     <label for="carselect">Selecione fabricante de carro</label>
+     <select name="carmodel" id="carselect">
+        <option value="Fiat">Fiat</option>
+        <option value="Ford">Ford</option>
+        <option value="Cherry">Cherry</option>
+        <option value="Volks">Volks</option>
+     </select>
+     <br>
+        
+
 </body>
 </html>
