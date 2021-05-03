@@ -1,4 +1,4 @@
-const Modal = {
+const Modal = {//abre e fecha o formulario 
     open() {
         // Abrir modal
         // Adicionar a class active ao modal
@@ -18,40 +18,28 @@ const Modal = {
     }
 }
 
-const Transaction = {
-    all: [{
-
-        description: 'Luz',
-        amount: -50001,
-        date: '23/01/2021'
+const Storage = {
+    get() {
+        return JSON.parse(localStorage.getItem("dev.finances:transactions")) || []//pegando o valor da trasactions e salvo no storage
     },
-    {
-
-        description: 'Criação Site',
-        amount: 500000,
-        date: '23/01/2021'
+    set(transactions) {
+        localStorage.setItem("dev.finances:transaction", JSON.stringify(transactions));//json transforma as transactions(array) em string 
     },
-    {
 
-        description: 'Internet',
-        amount: -20012,
-        date: '23/01/2021'
-    },
-    {
+}
 
-        description: 'App',
-        amount: 200000,
-        date: '23/01/2021'
-    }
-    ],
+const Transaction = {//trata as transaçoes
+    all: Storage.get(),
 
     add(transaction) {
         Transaction.all.push(transaction)
+
         App.reload()
     },
 
     remove(index) {
-        Transaction.all.splice(index, 1)
+        Transaction.all.splice(index, 1)//remove a trasaction da lista 1 elemento pelo index
+
         App.reload()
     },
     incomes() { //soma das entradas
@@ -80,18 +68,19 @@ const Transaction = {
 
 }
 
-const DOM = {
+const DOM = {//trata os documents dentro do html
     transactionsContainer: document.querySelector('#data-table tbody'),//selecionando o tbory
 
     addTransaction(transaction, index) { //criando o tr e adicionando o transaction formatada
         const tr = document.createElement('tr')
-        tr.innerHTML = DOM.innerHTMLTransaction(transaction)
+        tr.innerHTML = DOM.innerHTMLTransaction(transaction, index)
+        tr.dataset.index = index
 
         DOM.transactionsContainer.appendChild(tr)
 
     },
 
-    innerHTMLTransaction(transaction) {//formantando transaction
+    innerHTMLTransaction(transaction, index) {//formantando transaction
         const CSSclass = transaction.amount > 0 ? "income" : "expense";
 
         const amount = Utils.formatCurrency(transaction.amount)
@@ -101,7 +90,7 @@ const DOM = {
             <td class="description">${transaction.description}</td>
             <td class="${CSSclass}">${amount}</td>
             <td class="date">${transaction.date}</td>
-            <td> <img src="./assets/minus.svg" alt="remover itens"></td>
+            <td> <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação"></td>
 
         `
         return html
@@ -128,7 +117,13 @@ const DOM = {
 
 const Utils = {  //formantando valores
     formatAmount(value) {
-        console.log(value)
+        value = Number(value) * 100
+
+        return value
+    },
+    formatDate(date) {
+        const splittedDate = date.split("-")
+        return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}`
     },
 
     formatCurrency(value) {
@@ -148,7 +143,7 @@ const Utils = {  //formantando valores
 
 }
 const Form = {
-    description: document.querySelector('input#description'),//linkando os dados do html junto ao JS
+    description: document.querySelector('input#description'),
     amount: document.querySelector('input#amount'),
     date: document.querySelector('input#date'),
 
@@ -159,52 +154,72 @@ const Form = {
             date: Form.date.value
         }
     },
-    validateFields() {
-        
-       // const { description, amount, date } = Form.getValues()
 
-      //  if (description.trim() === "" ||
-       //     amount.trim() === "" ||
-       //     date.trim() === "") {
-        //    throw new Error("Por favor, preencha todos os campos")
+    validateFields() {
+        const { description, amount, date } = Form.getValues()
+
+        if (description.trim() === "" ||
+            amount.trim() === "" ||
+            date.trim() === "") {
+            throw new Error("Por favor, preencha todos os campos")
         }
     },
 
     formatValues() {
         let { description, amount, date } = Form.getValues()
+
         amount = Utils.formatAmount(amount)
+
+        date = Utils.formatDate(date)
+
+        return {
+            description,
+            amount,
+            date
+        }
+    },
+
+    clearFields() {
+        Form.description.value = ""
+        Form.amount.value = ""
+        Form.date.value = ""
     },
 
     submit(event) {
         event.preventDefault()
 
         try {
-            // AbrirForm.validateFields()//valida os dados do formulario
-            Form.formatValues()
+            Form.validateFields()//validar os campos
+
+            const transaction = Form.formatValues()  //formatar os dados para salvar
+
+            Transaction.add(transaction)//salvar os dados
+
+            Form.clearFields()
+
+            Modal.close()
+
         } catch (error) {
             alert(error.message)
         }
-
-
-
     }
 }
 
-const App = {
-    init() {
-        Transaction.all.forEach(transaction => { //para cada transaction criada ele insere na tabela
-            DOM.addTransaction(transaction)
+
+
+const App = { //funcionalidades do aplicativo
+    init() {//inicia a aplicaçao
+        Transaction.all.forEach((transaction, index) => { //para cada transaction criada ele insere na tabela
+            DOM.addTransaction(transaction, index)
         })
         DOM.updateBalance() //atualizando os Display de controle
 
-
+        Storage.set(Transaction.all)// atualizando o local storage
     },
 
-    reload() {
+    reload() {// recarrega a aplicação
         DOM.clearTransactions()
         App.init()
     },
 }
 App.init()
-
-Transaction.remove(2)
